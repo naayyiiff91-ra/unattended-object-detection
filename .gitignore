@@ -1,0 +1,41 @@
+# Python Virtual Environments
+venv/
+.venv/
+.venv-1/
+ENV/
+env/
+
+# Environment Variables & Secrets (CRITICAL: NEVER COMMIT)
+.env
+*.env
+!.env.example
+
+# Python Bytecode & Cache
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Databases & Runtime Logs
+logs/
+*.db
+*.sqlite
+*.sqlite3
+
+# Model weights (auto-downloaded by Ultralytics on first run)
+*.pt
+*.onnx
+models/
+
+# Test video recordings & media
+*.mp4
+*.avi
+*.mkv
+*.mov
+
+# IDE & OS Files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,1210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Unattended Object Monitor - AI Surveillance</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --bg: #090c10;
+      --card: #131720;
+      --card-hover: #191f2c;
+      --border: #232a38;
+      --border-focus: #3b82f6;
+      --text: #f0f4fc;
+      --text-muted: #8b9bb4;
+      --red: #ef4444;
+      --red-glow: rgba(239, 68, 68, 0.25);
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.25);
+      --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.25);
+      --blue: #3b82f6;
+      --blue-glow: rgba(59, 130, 246, 0.25);
+      --purple: #8b5cf6;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    header {
+      background: rgba(19, 23, 32, 0.95);
+      backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border);
+      padding: 14px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .brand-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: linear-gradient(135deg, #ef4444, #b91c1c);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 0 16px var(--red-glow);
+      font-size: 18px;
+    }
+
+    .brand-text h1 {
+      font-size: 17px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      color: var(--text);
+    }
+
+    .brand-text span {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+      color: var(--green);
+    }
+
+    .live-badge.standby {
+      background: rgba(245, 158, 11, 0.1);
+      border-color: rgba(245, 158, 11, 0.3);
+      color: var(--amber);
+    }
+
+    .live-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: currentColor;
+      box-shadow: 0 0 8px currentColor;
+      animation: pulse 1.8s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.4; transform: scale(0.85); }
+    }
+
+    .btn {
+      background: var(--card);
+      border: 1px solid var(--border);
+      color: var(--text);
+      padding: 7px 14px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s ease;
+    }
+
+    .btn:hover {
+      background: var(--card-hover);
+      border-color: var(--border-focus);
+    }
+
+    .btn-test {
+      background: rgba(239, 68, 68, 0.12);
+      border-color: rgba(239, 68, 68, 0.4);
+      color: #fca5a5;
+    }
+
+    .btn-test:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: var(--red);
+      color: #fff;
+    }
+
+    /* Main Container */
+    main {
+      flex: 1;
+      padding: 24px 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+      max-width: 1720px;
+      width: 100%;
+      margin: 0 auto;
+    }
+
+    /* KPI Stats Bar */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+    }
+
+    .stat-card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 18px 20px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      transition: transform 0.2s, border-color 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .stat-info .stat-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      margin-bottom: 6px;
+      font-weight: 600;
+    }
+
+    .stat-info .stat-value {
+      font-size: 32px;
+      font-weight: 800;
+      font-family: 'JetBrains Mono', monospace;
+      line-height: 1.1;
+    }
+
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .stat-alert {
+      border-left: 4px solid var(--red);
+    }
+    .stat-alert .stat-value { color: var(--red); }
+    .stat-alert .stat-icon { background: rgba(239, 68, 68, 0.15); color: var(--red); }
+
+    .stat-objects {
+      border-left: 4px solid var(--blue);
+    }
+    .stat-objects .stat-value { color: var(--blue); }
+    .stat-objects .stat-icon { background: rgba(59, 130, 246, 0.15); color: var(--blue); }
+
+    .stat-live {
+      border-left: 4px solid var(--green);
+    }
+    .stat-live .stat-value { color: var(--green); }
+    .stat-live .stat-icon { background: rgba(16, 185, 129, 0.15); color: var(--green); }
+
+    .stat-system {
+      border-left: 4px solid var(--purple);
+    }
+    .stat-system .stat-value { color: var(--purple); font-size: 24px; }
+    .stat-system .stat-icon { background: rgba(139, 92, 246, 0.15); color: var(--purple); }
+
+    /* Dashboard Layout Grid */
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 1.8fr 1.2fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 1100px) {
+      .dashboard-grid { grid-template-columns: 1fr; }
+    }
+
+    /* Cards */
+    .panel {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .panel-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(19, 23, 32, 0.6);
+    }
+
+    .panel-title {
+      font-size: 14px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .panel-title span {
+      color: var(--text);
+    }
+
+    /* Video Player Viewport */
+    .video-container {
+      position: relative;
+      background: #000;
+      width: 100%;
+      aspect-ratio: 16/9;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    #video-player {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      display: block;
+    }
+
+    .video-overlay-top {
+      position: absolute;
+      top: 12px;
+      left: 14px;
+      right: 14px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      pointer-events: none;
+    }
+
+    .cam-tag {
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(4px);
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-family: 'JetBrains Mono', monospace;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: 1px solid rgba(255, 255, 255, 0.1);
+    }
+
+    .rec-dot {
+      width: 8px;
+      height: 8px;
+      background: var(--red);
+      border-radius: 50%;
+      animation: pulse 1s infinite;
+    }
+
+    .video-container.alarm-active {
+      box-shadow: 0 0 0 3px var(--red), 0 0 30px var(--red-glow);
+    }
+
+    .alert-banner-overlay {
+      position: absolute;
+      bottom: 14px;
+      left: 14px;
+      right: 14px;
+      background: rgba(239, 68, 68, 0.95);
+      color: #fff;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-weight: 700;
+      font-size: 14px;
+      letter-spacing: 0.02em;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
+      animation: alertPulse 1.2s infinite alternate;
+      z-index: 10;
+    }
+
+    @keyframes alertPulse {
+      from { transform: scale(0.99); opacity: 0.92; }
+      to { transform: scale(1.01); opacity: 1; }
+    }
+
+
+    .video-controls {
+      padding: 10px 18px;
+      border-top: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      background: rgba(19, 23, 32, 0.4);
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Active Objects Matrix */
+    .live-objects-panel {
+      margin-top: 18px;
+    }
+
+    .live-objects-list {
+      padding: 16px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 120px;
+    }
+
+    .live-bag-item {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      transition: all 0.2s;
+    }
+
+    .live-bag-item.attended {
+      border-left: 4px solid var(--green);
+    }
+
+    .live-bag-item.orphaned {
+      border-left: 4px solid var(--amber);
+      background: rgba(245, 158, 11, 0.05);
+    }
+
+    .live-bag-item.unattended {
+      border-left: 4px solid var(--red);
+      background: rgba(239, 68, 68, 0.08);
+      animation: flash-border 1.5s infinite;
+    }
+
+    @keyframes flash-border {
+      0%, 100% { border-color: var(--red); }
+      50% { border-color: rgba(239, 68, 68, 0.3); }
+    }
+
+    .live-bag-info {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .live-bag-icon {
+      font-size: 18px;
+    }
+
+    .live-bag-title {
+      font-weight: 600;
+      font-size: 14px;
+    }
+
+    .live-bag-subtitle {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .status-tag {
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .status-tag.attended {
+      background: rgba(16, 185, 129, 0.15);
+      color: var(--green);
+      border: 1px solid rgba(16, 185, 129, 0.3);
+    }
+
+    .status-tag.orphaned {
+      background: rgba(245, 158, 11, 0.15);
+      color: var(--amber);
+      border: 1px solid rgba(245, 158, 11, 0.3);
+    }
+
+    .status-tag.unattended {
+      background: rgba(239, 68, 68, 0.2);
+      color: var(--red);
+      border: 1px solid var(--red);
+    }
+
+    /* Alerts Panel */
+    .alerts-panel {
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .alerts-filters {
+      padding: 10px 18px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      gap: 8px;
+      background: rgba(19, 23, 32, 0.3);
+      overflow-x: auto;
+    }
+
+    .filter-btn {
+      background: transparent;
+      border: 1px solid var(--border);
+      color: var(--text-muted);
+      padding: 4px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .filter-btn.active, .filter-btn:hover {
+      background: var(--card-hover);
+      color: var(--text);
+      border-color: var(--border-focus);
+    }
+
+    .alerts-scroll {
+      flex: 1;
+      max-height: 850px;
+      overflow-y: auto;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .alert-card {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border);
+      border-left: 4px solid var(--red);
+      border-radius: 10px;
+      padding: 14px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      transition: all 0.2s;
+    }
+
+    .alert-card:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.15);
+    }
+
+    .alert-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .alert-target {
+      font-weight: 700;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .alert-time {
+      font-size: 11px;
+      color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+    }
+
+    .alert-message {
+      font-size: 13px;
+      line-height: 1.45;
+      color: #e2e8f0;
+      background: rgba(0, 0, 0, 0.25);
+      padding: 8px 12px;
+      border-radius: 6px;
+      border-left: 2px solid var(--blue);
+    }
+
+    .alert-snapshot-wrapper {
+      position: relative;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 1px solid var(--border);
+      cursor: pointer;
+      background: #000;
+      max-height: 200px;
+    }
+
+    .alert-snapshot-wrapper:hover .zoom-overlay {
+      opacity: 1;
+    }
+
+    .alert-snapshot-img {
+      width: 100%;
+      height: 180px;
+      object-fit: cover;
+      display: block;
+      transition: transform 0.3s ease;
+    }
+
+    .alert-snapshot-wrapper:hover .alert-snapshot-img {
+      transform: scale(1.03);
+    }
+
+    .zoom-overlay {
+      position: absolute;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #fff;
+      opacity: 0;
+      transition: opacity 0.2s ease;
+    }
+
+    .empty-state {
+      padding: 40px 20px;
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .empty-icon {
+      font-size: 32px;
+      margin-bottom: 8px;
+      opacity: 0.6;
+    }
+
+    /* Lightbox Modal */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      backdrop-filter: blur(8px);
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+
+    .modal.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      max-width: 900px;
+      width: 100%;
+      overflow: hidden;
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      animation: modal-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+
+    @keyframes modal-pop {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    .modal-header {
+      padding: 14px 20px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .modal-img {
+      width: 100%;
+      max-height: 540px;
+      object-fit: contain;
+      background: #000;
+      border-radius: 8px;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 24px;
+      cursor: pointer;
+      line-height: 1;
+    }
+
+    .modal-close:hover {
+      color: var(--text);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header>
+    <div class="brand">
+      <div class="brand-icon">🛡️</div>
+      <div class="brand-text">
+        <h1>Unattended Object Detection</h1>
+        <span>AI Surveillance & Automated Alert System</span>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div id="status-badge" class="live-badge">
+        <span class="live-dot"></span>
+        <span id="status-text">Live Monitoring</span>
+      </div>
+      <button id="cam-toggle-btn" class="btn" onclick="toggleCamera()" title="Start or Stop Camera Detection">
+        📹 Camera: Active
+      </button>
+      <button class="btn btn-test" onclick="triggerTestAlert()" title="Create a simulated test alert">
+        ⚡ Simulate Alert
+      </button>
+      <button id="sound-btn" class="btn" onclick="toggleAudio()" title="Toggle alert chime">
+        🔔 Sound: On
+      </button>
+      <button class="btn" onclick="refreshData()" title="Refresh data now">
+        🔄 Refresh
+      </button>
+      <button class="btn" onclick="togglePageFullscreen()" title="Toggle Fullscreen Dashboard">
+        ⛶ Fullscreen
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main>
+    <!-- KPI Metrics Row -->
+    <section class="stats-row">
+      <div class="stat-card stat-alert">
+        <div class="stat-info">
+          <div class="stat-label">Unattended Alerts</div>
+          <div class="stat-value" id="kpi-unattended">0</div>
+        </div>
+        <div class="stat-icon">⚠️</div>
+      </div>
+      <div class="stat-card stat-objects">
+        <div class="stat-info">
+          <div class="stat-label">Unique Bags Tracked</div>
+          <div class="stat-value" id="kpi-unique">0</div>
+        </div>
+        <div class="stat-icon">🎒</div>
+      </div>
+      <div class="stat-card stat-live">
+        <div class="stat-info">
+          <div class="stat-label">Objects in Frame</div>
+          <div class="stat-value" id="kpi-active">0</div>
+        </div>
+        <div class="stat-icon">👁️</div>
+      </div>
+      <div class="stat-card stat-system">
+        <div class="stat-info">
+          <div class="stat-label">Camera Status</div>
+          <div class="stat-value" id="kpi-cam-status">Online</div>
+        </div>
+        <div class="stat-icon">📹</div>
+      </div>
+    </section>
+
+    <!-- Main Grid -->
+    <div class="dashboard-grid">
+      <!-- Left Column: Video Feed & Realtime Tracking -->
+      <section>
+        <!-- Camera Stream Panel -->
+        <div class="panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              📹 <span>Live Camera Stream</span>
+            </div>
+            <div class="cam-tag">
+              <span class="rec-dot"></span>
+              <span id="fps-counter">30.0 FPS</span>
+            </div>
+          </div>
+          <div class="video-container" id="video-wrapper">
+            <div class="video-overlay-top">
+              <span class="cam-tag">CAM-01 • PRIMARY ZONE</span>
+              <span class="cam-tag" id="live-clock">--:--:--</span>
+            </div>
+            <div id="live-alert-banner" class="alert-banner-overlay">
+              🚨 <span id="live-alert-text">ACTIVE SECURITY ALERT: UNATTENDED OBJECT DETECTED!</span>
+            </div>
+            <img id="video-player" src="/video_feed" alt="Surveillance Stream" onerror="handleVideoError(this)">
+          </div>
+          <div class="video-controls">
+            <span>YOLOv8 Object Tracking (Person, Backpack, Handbag, Suitcase)</span>
+            <div style="display: flex; gap: 8px;">
+              <button class="btn" onclick="reloadStream()" style="padding: 4px 10px; font-size: 12px;" title="Reload video feed">
+                🔄 Reconnect Feed
+              </button>
+              <button class="btn" onclick="toggleFullscreen()" style="padding: 4px 10px; font-size: 12px;">
+                ⛶ Fullscreen
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Real-Time Active Tracking Matrix -->
+        <div class="panel live-objects-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              🎯 <span>Currently Tracked Objects in View</span>
+            </div>
+            <span id="active-bags-count" style="font-size: 12px; color: var(--text-muted); font-family: monospace;">0 detected</span>
+          </div>
+          <div class="live-objects-list" id="active-objects-container">
+            <div class="empty-state">
+              <div class="empty-icon">🔍</div>
+              No objects currently in frame.
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Right Column: Security Alerts Feed -->
+      <section>
+        <div class="panel alerts-panel">
+          <div class="panel-header">
+            <div class="panel-title">
+              🚨 <span>Security Alerts & Snapshots</span>
+            </div>
+            <span id="alerts-count-tag" style="font-size: 12px; color: var(--text-muted); font-family: monospace;">0 logged</span>
+          </div>
+
+          <div class="alerts-filters">
+            <button class="filter-btn active" onclick="setFilter('all', this)">All Classes</button>
+            <button class="filter-btn" onclick="setFilter('backpack', this)">Backpack</button>
+            <button class="filter-btn" onclick="setFilter('handbag', this)">Handbag</button>
+            <button class="filter-btn" onclick="setFilter('suitcase', this)">Suitcase</button>
+          </div>
+
+          <div class="alerts-scroll" id="alerts-container">
+            <div class="empty-state">
+              <div class="empty-icon">🛡️</div>
+              No unattended incidents recorded yet.
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+  </main>
+
+  <!-- Lightbox Modal -->
+  <div class="modal" id="image-modal" onclick="closeModal(event)">
+    <div class="modal-content" onclick="event.stopPropagation()">
+      <div class="modal-header">
+        <span class="panel-title" id="modal-title">Incident Snapshot</span>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <img id="modal-img" class="modal-img" src="" alt="Full Snapshot">
+        <div class="alert-message" id="modal-desc"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // State
+    let currentFilter = 'all';
+    let soundEnabled = true;
+    let knownAlertIds = new Set();
+    let initialLoadDone = false;
+
+    // Web Audio Synthesizer for Alert Chime
+    let audioCtx = null;
+    function playAlertChime() {
+      if (!soundEnabled) return;
+      try {
+        if (!audioCtx) {
+          audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtx.state === 'suspended') {
+          audioCtx.resume();
+        }
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gain = audioCtx.createGain();
+
+        osc.type = 'sine';
+        // Dual beep frequency
+        osc.frequency.setValueAtTime(880, now);
+        osc.frequency.setValueAtTime(1046.5, now + 0.12);
+
+        gain.gain.setValueAtTime(0.15, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+
+        osc.start(now);
+        osc.stop(now + 0.35);
+      } catch (e) {
+        console.warn("Audio chime failed:", e);
+      }
+    }
+
+    function toggleAudio() {
+      soundEnabled = !soundEnabled;
+      const btn = document.getElementById("sound-btn");
+      btn.textContent = soundEnabled ? "🔔 Sound: On" : "🔕 Sound: Muted";
+      btn.style.color = soundEnabled ? "var(--text)" : "var(--text-muted)";
+    }
+
+    // Live Clock
+    setInterval(() => {
+      const now = new Date();
+      document.getElementById("live-clock").textContent = now.toLocaleTimeString();
+    }, 1000);
+
+    // Filter Logic
+    function setFilter(cls, btn) {
+      currentFilter = cls;
+      document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+      if (btn) btn.classList.add("active");
+      renderAlerts();
+    }
+
+    let cachedAlerts = [];
+
+    // Fetch Alerts & Stats
+    async function refreshData() {
+      try {
+        const [alertsRes, statsRes] = await Promise.all([
+          fetch("/alerts?limit=50").then(r => r.json()),
+          fetch("/stats").then(r => r.json())
+        ]);
+
+        // Detect new alert for chime
+        if (initialLoadDone && alertsRes.length > 0) {
+          const hasNew = alertsRes.some(a => !knownAlertIds.has(a.id));
+          if (hasNew) playAlertChime();
+        }
+
+        alertsRes.forEach(a => knownAlertIds.add(a.id));
+        initialLoadDone = true;
+
+        cachedAlerts = alertsRes;
+        updateStatsUI(statsRes);
+        renderAlerts();
+        renderLiveObjects(statsRes.telemetry);
+
+      } catch (err) {
+        console.warn("Refresh error:", err);
+      }
+    }
+
+    let wasCameraActive = false;
+
+    function reloadStream() {
+      const player = document.getElementById("video-player");
+      player.src = "/video_feed?t=" + Date.now();
+    }
+
+    async function toggleCamera() {
+      const btn = document.getElementById("cam-toggle-btn");
+      try {
+        const res = await fetch("/api/camera/status").then(r => r.json());
+        if (res.running) {
+          await fetch("/api/camera/stop", { method: "POST" });
+          btn.textContent = "📹 Camera: Paused";
+          btn.style.color = "var(--amber)";
+        } else {
+          await fetch("/api/camera/start", { method: "POST" });
+          btn.textContent = "📹 Camera: Active";
+          btn.style.color = "var(--green)";
+        }
+        setTimeout(reloadStream, 1200);
+      } catch (err) {
+        console.error("Camera toggle failed:", err);
+      }
+    }
+
+    function updateStatsUI(stats) {
+      document.getElementById("kpi-unattended").textContent = stats.total || 0;
+      document.getElementById("kpi-unique").textContent = stats.unique_bags || 0;
+
+      const isCamActive = !!stats.camera_active;
+      const statusBadge = document.getElementById("status-badge");
+      const statusText = document.getElementById("status-text");
+      const kpiCamStatus = document.getElementById("kpi-cam-status");
+
+      // Auto-refresh stream if camera just went active
+      if (isCamActive && !wasCameraActive) {
+        reloadStream();
+      }
+      wasCameraActive = isCamActive;
+
+      if (isCamActive) {
+        statusBadge.className = "live-badge";
+        statusText.textContent = "Live Monitoring";
+        kpiCamStatus.textContent = "Active";
+        kpiCamStatus.style.color = "var(--green)";
+      } else {
+        statusBadge.className = "live-badge standby";
+        statusText.textContent = "Feed Standby";
+        kpiCamStatus.textContent = "Standby";
+        kpiCamStatus.style.color = "var(--amber)";
+      }
+
+      if (stats.telemetry) {
+        const personCount = stats.telemetry.person_count || 0;
+        const bagCount = stats.telemetry.bag_count || 0;
+        document.getElementById("kpi-active").textContent = `${bagCount} bags (${personCount} ppl)`;
+        if (stats.telemetry.fps) {
+          document.getElementById("fps-counter").textContent = `${stats.telemetry.fps} FPS`;
+        }
+      }
+    }
+
+    function renderLiveObjects(telemetry) {
+      const container = document.getElementById("active-objects-container");
+      const countTag = document.getElementById("active-bags-count");
+      const banner = document.getElementById("live-alert-banner");
+      const alertText = document.getElementById("live-alert-text");
+      const videoWrapper = document.getElementById("video-wrapper");
+
+      // Check for any currently active unattended bags
+      const unattendedBags = (telemetry && telemetry.bags) ? telemetry.bags.filter(b => b.state === "unattended") : [];
+      if (unattendedBags.length > 0) {
+        const uBag = unattendedBags[0];
+        if (banner) banner.style.display = "flex";
+        if (alertText) alertText.textContent = `CRITICAL ALERT: UNATTENDED ${uBag.class_name.toUpperCase()} #${uBag.bag_id} DETECTED (${Math.round(uBag.seconds_orphaned)}s)!`;
+        if (videoWrapper) videoWrapper.classList.add("alarm-active");
+        playAlertChime();
+      } else {
+        if (banner) banner.style.display = "none";
+        if (videoWrapper) videoWrapper.classList.remove("alarm-active");
+      }
+
+      if (!telemetry || !telemetry.bags || telemetry.bags.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🔍</div>
+            No bags currently detected in camera frame.
+          </div>
+        `;
+        countTag.textContent = "0 detected";
+        return;
+      }
+
+      countTag.textContent = `${telemetry.bags.length} in frame`;
+      container.innerHTML = "";
+
+      telemetry.bags.forEach(bag => {
+        const item = document.createElement("div");
+        item.className = `live-bag-item ${bag.state}`;
+
+        let icon = "🎒";
+        if (bag.class_name === "handbag") icon = "👜";
+        if (bag.class_name === "suitcase") icon = "🧳";
+
+        let stateLabel = bag.state.toUpperCase();
+        let subtitle = "Person nearby";
+
+        if (bag.state === "orphaned") {
+          subtitle = `Timer: ${bag.seconds_orphaned}s / ${bag.threshold || 15}s`;
+        } else if (bag.state === "unattended") {
+          subtitle = `ALERT! Unattended for ${bag.seconds_orphaned}s`;
+        }
+
+        item.innerHTML = `
+          <div class="live-bag-info">
+            <div class="live-bag-icon">${icon}</div>
+            <div>
+              <div class="live-bag-title">${bag.class_name.toUpperCase()} #${bag.bag_id}</div>
+              <div class="live-bag-subtitle">${subtitle}</div>
+            </div>
+          </div>
+          <span class="status-tag ${bag.state}">${stateLabel}</span>
+        `;
+        container.appendChild(item);
+      });
+    }
+
+    function renderAlerts() {
+      const container = document.getElementById("alerts-container");
+      const countTag = document.getElementById("alerts-count-tag");
+
+      let filtered = cachedAlerts;
+      if (currentFilter !== 'all') {
+        filtered = cachedAlerts.filter(a => a.class_name === currentFilter);
+      }
+
+      countTag.textContent = `${filtered.length} logged`;
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-icon">🛡️</div>
+            No ${currentFilter === 'all' ? '' : currentFilter} alerts recorded.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = "";
+      filtered.forEach(a => {
+        const card = document.createElement("div");
+        card.className = "alert-card";
+
+        const icon = a.class_name === 'suitcase' ? '🧳' : (a.class_name === 'handbag' ? '👜' : '🎒');
+        const durationSec = Math.round(a.duration_seconds || 15);
+        const timeDisplay = a.formatted_time || a.timestamp || "Just now";
+
+        let imgHtml = "";
+        if (a.snapshot) {
+          const snapUrl = `/snapshots/${encodeURIComponent(a.snapshot)}`;
+          imgHtml = `
+            <div class="alert-snapshot-wrapper" onclick="openModal('${snapUrl}', '${escapeHtml(a.alert_text)}', 'Bag #${a.bag_id} (${a.class_name})')">
+              <img class="alert-snapshot-img" src="${snapUrl}" alt="Snapshot" loading="lazy">
+              <div class="zoom-overlay">
+                <span>🔍 Click to Enlarge Snapshot</span>
+              </div>
+            </div>
+          `;
+        }
+
+        card.innerHTML = `
+          <div class="alert-header">
+            <div class="alert-target">
+              <span>${icon}</span>
+              <span>${a.class_name.toUpperCase()} #${a.bag_id}</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+              <span class="status-tag unattended">${durationSec}s UNATTENDED</span>
+              <span class="alert-time">${timeDisplay}</span>
+            </div>
+          </div>
+          <div class="alert-message">
+            ${escapeHtml(a.alert_text)}
+          </div>
+          ${imgHtml}
+        `;
+        container.appendChild(card);
+      });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return "";
+      return String(str)
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Modal Lightbox
+    function openModal(imgSrc, desc, title) {
+      document.getElementById("modal-img").src = imgSrc;
+      document.getElementById("modal-desc").textContent = desc;
+      document.getElementById("modal-title").textContent = title || "Incident Snapshot";
+      document.getElementById("image-modal").classList.add("active");
+    }
+
+    function closeModal(e) {
+      if (!e || e.target.id === 'image-modal' || e.target.classList.contains('modal-close')) {
+        document.getElementById("image-modal").classList.remove("active");
+      }
+    }
+
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape") closeModal();
+    });
+
+    // Fullscreen for Entire Dashboard Webpage
+    function togglePageFullscreen() {
+      if (!document.fullscreenElement) {
+        document.documentElement.requestFullscreen().catch(err => console.warn(err));
+      } else {
+        if (document.exitFullscreen) document.exitFullscreen();
+      }
+    }
+
+    // Fullscreen for Camera Video Only
+    function toggleFullscreen() {
+      const elem = document.getElementById("video-wrapper");
+      if (!document.fullscreenElement) {
+        elem.requestFullscreen().catch(err => alert("Fullscreen error: " + err.message));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Test Alert Simulation
+    async function triggerTestAlert() {
+      try {
+        const res = await fetch("/api/test_alert", { method: "POST" });
+        const data = await res.json();
+        if (data.status === "success") {
+          refreshData();
+        }
+      } catch (e) {
+        alert("Failed to simulate alert: " + e);
+      }
+    }
+
+    function handleVideoError(img) {
+      console.warn("Video stream offline or disconnected, retrying in 3s...");
+      setTimeout(() => {
+        img.src = "/video_feed?t=" + new Date().getTime();
+      }, 3000);
+    }
+
+    // Start Real-Time Polling Loop
+    refreshData();
+    setInterval(refreshData, 2000);
+  </script>
+</body>
+</html>
+

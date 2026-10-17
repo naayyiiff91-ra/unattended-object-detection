@@ -1,0 +1,17 @@
+# Core Computer Vision & AI
+ultralytics>=8.0.0
+opencv-python>=4.8.0
+torch>=2.0.0
+torchvision>=0.15.0
+numpy>=1.24.0
+Pillow>=9.5.0
+
+# Web Dashboard & API
+Flask>=3.0.0
+Werkzeug>=3.0.0
+Jinja2>=3.1.0
+
+# Networking & Utilities
+requests>=2.31.0
+python-dotenv>=1.0.0
+winotify>=1.1.0
