@@ -3,48 +3,64 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Unattended Object Monitor - AI Surveillance</title>
+  <title>SentinAI — Autonomous VLM Surveillance & Threat Monitoring</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@500;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #090c10;
-      --card: #131720;
-      --card-hover: #191f2c;
-      --border: #232a38;
-      --border-focus: #3b82f6;
-      --text: #f0f4fc;
-      --text-muted: #8b9bb4;
-      --red: #ef4444;
-      --red-glow: rgba(239, 68, 68, 0.25);
-      --amber: #f59e0b;
-      --amber-glow: rgba(245, 158, 11, 0.25);
-      --green: #10b981;
-      --green-glow: rgba(16, 185, 129, 0.25);
+      --bg-dark: #07090e;
+      --bg-surface: #0e131f;
+      --bg-card: rgba(18, 24, 38, 0.75);
+      --bg-card-hover: rgba(26, 35, 54, 0.85);
+      --border-subtle: rgba(255, 255, 255, 0.07);
+      --border-glow: rgba(56, 189, 248, 0.25);
+      
+      --text-main: #f8fafc;
+      --text-muted: #94a3b8;
+      --text-dim: #64748b;
+      
+      --cyan: #38bdf8;
+      --cyan-glow: rgba(56, 189, 248, 0.35);
       --blue: #3b82f6;
-      --blue-glow: rgba(59, 130, 246, 0.25);
-      --purple: #8b5cf6;
+      --indigo: #6366f1;
+      --purple: #a855f7;
+      --green: #10b981;
+      --green-glow: rgba(16, 185, 129, 0.3);
+      --amber: #f59e0b;
+      --amber-glow: rgba(245, 158, 11, 0.3);
+      --red: #f43f5e;
+      --red-glow: rgba(244, 63, 94, 0.4);
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
 
     body {
-      background-color: var(--bg);
-      color: var(--text);
-      font-family: 'Inter', system-ui, -apple-system, sans-serif;
+      background-color: var(--bg-dark);
+      background-image: 
+        radial-gradient(circle at 15% 15%, rgba(56, 189, 248, 0.05) 0%, transparent 40%),
+        radial-gradient(circle at 85% 85%, rgba(99, 102, 241, 0.05) 0%, transparent 40%);
+      color: var(--text-main);
+      font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
       overflow-x: hidden;
+      letter-spacing: -0.01em;
     }
 
-    /* Header */
+    /* Scrollbars */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: rgba(0, 0, 0, 0.2); }
+    ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 4px; }
+    ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
+
+    /* Top Command Header */
     header {
-      background: rgba(19, 23, 32, 0.95);
-      backdrop-filter: blur(12px);
-      border-bottom: 1px solid var(--border);
-      padding: 14px 28px;
+      background: rgba(11, 15, 25, 0.85);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 12px 28px;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -56,58 +72,83 @@
     .brand {
       display: flex;
       align-items: center;
-      gap: 12px;
+      gap: 14px;
     }
 
-    .brand-icon {
-      width: 36px;
-      height: 36px;
-      border-radius: 8px;
-      background: linear-gradient(135deg, #ef4444, #b91c1c);
+    .brand-icon-wrapper {
+      position: relative;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: linear-gradient(135deg, #0284c7, #4f46e5);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 16px var(--red-glow);
-      font-size: 18px;
+      box-shadow: 0 0 20px rgba(56, 189, 248, 0.35);
+      font-size: 20px;
     }
 
     .brand-text h1 {
-      font-size: 17px;
-      font-weight: 700;
-      letter-spacing: -0.02em;
-      color: var(--text);
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: 0.02em;
+      background: linear-gradient(to right, #ffffff, #cbd5e1);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
-    .brand-text span {
+    .brand-badge {
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(56, 189, 248, 0.15);
+      color: var(--cyan);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .brand-text p {
       font-size: 12px;
       color: var(--text-muted);
+      font-weight: 500;
     }
 
     .header-actions {
       display: flex;
       align-items: center;
-      gap: 14px;
+      gap: 10px;
+      flex-wrap: wrap;
     }
 
+    /* Live Status Badge */
     .live-badge {
       display: flex;
       align-items: center;
       gap: 8px;
-      padding: 6px 12px;
+      padding: 6px 14px;
       border-radius: 20px;
-      font-size: 12px;
-      font-weight: 600;
+      font-size: 11px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
-      background: rgba(16, 185, 129, 0.1);
-      border: 1px solid rgba(16, 185, 129, 0.3);
+      letter-spacing: 0.06em;
+      background: rgba(16, 185, 129, 0.12);
+      border: 1px solid rgba(16, 185, 129, 0.35);
       color: var(--green);
+      box-shadow: 0 0 14px rgba(16, 185, 129, 0.2);
     }
 
     .live-badge.standby {
-      background: rgba(245, 158, 11, 0.1);
-      border-color: rgba(245, 158, 11, 0.3);
+      background: rgba(245, 158, 11, 0.12);
+      border-color: rgba(245, 158, 11, 0.35);
       color: var(--amber);
+      box-shadow: 0 0 14px rgba(245, 158, 11, 0.2);
     }
 
     .live-dot {
@@ -116,7 +157,7 @@
       border-radius: 50%;
       background: currentColor;
       box-shadow: 0 0 8px currentColor;
-      animation: pulse 1.8s infinite;
+      animation: pulse 1.6s infinite ease-in-out;
     }
 
     @keyframes pulse {
@@ -124,178 +165,268 @@
       50% { opacity: 0.4; transform: scale(0.85); }
     }
 
+    /* Modern Glass Buttons */
     .btn {
-      background: var(--card);
-      border: 1px solid var(--border);
-      color: var(--text);
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
+      color: var(--text-main);
       padding: 7px 14px;
       border-radius: 8px;
-      font-size: 13px;
-      font-weight: 500;
+      font-size: 12px;
+      font-weight: 600;
       cursor: pointer;
       display: inline-flex;
       align-items: center;
-      gap: 6px;
-      transition: all 0.2s ease;
+      gap: 7px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      backdrop-filter: blur(8px);
     }
 
     .btn:hover {
-      background: var(--card-hover);
-      border-color: var(--border-focus);
+      background: rgba(255, 255, 255, 0.09);
+      border-color: rgba(255, 255, 255, 0.2);
+      transform: translateY(-1px);
+    }
+
+    .btn:active {
+      transform: translateY(0);
     }
 
     .btn-test {
-      background: rgba(239, 68, 68, 0.12);
-      border-color: rgba(239, 68, 68, 0.4);
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.2));
+      border: 1px solid rgba(239, 68, 68, 0.4);
       color: #fca5a5;
     }
 
     .btn-test:hover {
-      background: rgba(239, 68, 68, 0.25);
+      background: linear-gradient(135deg, rgba(239, 68, 68, 0.35), rgba(185, 28, 28, 0.35));
       border-color: var(--red);
       color: #fff;
+      box-shadow: 0 0 16px var(--red-glow);
+    }
+
+    /* Threat Status HUD Strip */
+    .threat-hud-strip {
+      background: rgba(15, 23, 42, 0.7);
+      border-bottom: 1px solid var(--border-subtle);
+      padding: 6px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-family: 'JetBrains Mono', monospace;
+      font-size: 11px;
+      color: var(--text-muted);
+    }
+
+    .threat-status-tag {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+    }
+
+    .threat-indicator {
+      display: inline-block;
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 8px var(--green);
+    }
+
+    .threat-hud-strip.threat-active {
+      background: rgba(244, 63, 94, 0.15);
+      border-bottom-color: rgba(244, 63, 94, 0.4);
+      color: #fecdd3;
+    }
+
+    .threat-hud-strip.threat-active .threat-indicator {
+      background: var(--red);
+      box-shadow: 0 0 10px var(--red);
+      animation: alertPulse 0.8s infinite alternate;
+    }
+
+    .hud-meta-group {
+      display: flex;
+      gap: 18px;
+      align-items: center;
+    }
+
+    .hud-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .hud-meta-label {
+      color: var(--text-dim);
+    }
+
+    .hud-meta-value {
+      color: var(--cyan);
+      font-weight: 600;
     }
 
     /* Main Container */
     main {
-      flex: 1;
       padding: 24px 28px;
       display: flex;
       flex-direction: column;
-      gap: 20px;
-      max-width: 1720px;
-      width: 100%;
-      margin: 0 auto;
+      gap: 24px;
+      flex: 1;
     }
 
-    /* KPI Stats Bar */
-    .stats-row {
+    /* KPI Metrics Row */
+    .kpi-row {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      grid-template-columns: repeat(4, 1fr);
       gap: 16px;
     }
 
-    .stat-card {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
+    @media (max-width: 1024px) {
+      .kpi-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .kpi-row { grid-template-columns: 1fr; }
+    }
+
+    .kpi-card {
+      background: var(--bg-card);
+      backdrop-filter: blur(12px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
       padding: 18px 20px;
       display: flex;
-      align-items: center;
       justify-content: space-between;
-      transition: transform 0.2s, border-color 0.2s;
+      align-items: flex-start;
+      position: relative;
+      overflow: hidden;
+      transition: all 0.25s ease;
     }
 
-    .stat-card:hover {
-      transform: translateY(-2px);
+    .kpi-card:hover {
+      background: var(--bg-card-hover);
       border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-2px);
     }
 
-    .stat-info .stat-label {
-      font-size: 12px;
+    .kpi-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 4px;
+      height: 100%;
+      background: var(--cyan);
+      border-radius: 4px 0 0 4px;
+    }
+
+    .kpi-card.kpi-red::before { background: var(--red); }
+    .kpi-card.kpi-green::before { background: var(--green); }
+    .kpi-card.kpi-purple::before { background: var(--purple); }
+
+    .kpi-data {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .kpi-label {
+      font-size: 11px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       color: var(--text-muted);
-      margin-bottom: 6px;
-      font-weight: 600;
     }
 
-    .stat-info .stat-value {
-      font-size: 32px;
+    .kpi-value {
+      font-size: 28px;
       font-weight: 800;
       font-family: 'JetBrains Mono', monospace;
-      line-height: 1.1;
+      color: var(--text-main);
+      line-height: 1;
     }
 
-    .stat-icon {
-      width: 44px;
-      height: 44px;
+    .kpi-subtext {
+      font-size: 11px;
+      color: var(--text-dim);
+      font-weight: 500;
+    }
+
+    .kpi-icon-badge {
+      width: 42px;
+      height: 42px;
       border-radius: 10px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: center;
       font-size: 20px;
     }
 
-    .stat-alert {
-      border-left: 4px solid var(--red);
-    }
-    .stat-alert .stat-value { color: var(--red); }
-    .stat-alert .stat-icon { background: rgba(239, 68, 68, 0.15); color: var(--red); }
-
-    .stat-objects {
-      border-left: 4px solid var(--blue);
-    }
-    .stat-objects .stat-value { color: var(--blue); }
-    .stat-objects .stat-icon { background: rgba(59, 130, 246, 0.15); color: var(--blue); }
-
-    .stat-live {
-      border-left: 4px solid var(--green);
-    }
-    .stat-live .stat-value { color: var(--green); }
-    .stat-live .stat-icon { background: rgba(16, 185, 129, 0.15); color: var(--green); }
-
-    .stat-system {
-      border-left: 4px solid var(--purple);
-    }
-    .stat-system .stat-value { color: var(--purple); font-size: 24px; }
-    .stat-system .stat-icon { background: rgba(139, 92, 246, 0.15); color: var(--purple); }
-
-    /* Dashboard Layout Grid */
+    /* Main Grid: Left (Video & Tracker) | Right (Alerts Feed) */
     .dashboard-grid {
       display: grid;
-      grid-template-columns: 1.8fr 1.2fr;
-      gap: 20px;
+      grid-template-columns: 1.45fr 1fr;
+      gap: 24px;
     }
 
-    @media (max-width: 1100px) {
+    @media (max-width: 1180px) {
       .dashboard-grid { grid-template-columns: 1fr; }
     }
 
-    /* Cards */
     .panel {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
+      background: var(--bg-card);
+      backdrop-filter: blur(16px);
+      border: 1px solid var(--border-subtle);
+      border-radius: 14px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
+      box-shadow: 0 10px 30px -10px rgba(0, 0, 0, 0.5);
     }
 
     .panel-header {
       padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(19, 23, 32, 0.6);
+      background: rgba(14, 19, 31, 0.7);
     }
 
     .panel-title {
-      font-size: 14px;
-      font-weight: 600;
+      font-size: 13px;
+      font-weight: 700;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
       color: var(--text-muted);
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 9px;
     }
 
     .panel-title span {
-      color: var(--text);
+      color: var(--text-main);
     }
 
     /* Video Player Viewport */
     .video-container {
       position: relative;
-      background: #000;
+      background: #030508;
       width: 100%;
       aspect-ratio: 16/9;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .video-container.alarm-active {
+      box-shadow: inset 0 0 0 3px var(--red), 0 0 35px var(--red-glow);
     }
 
     #video-player {
@@ -305,62 +436,78 @@
       display: block;
     }
 
+    /* Tactical HUD Corner Brackets */
+    .hud-corner {
+      position: absolute;
+      width: 16px;
+      height: 16px;
+      border-color: rgba(56, 189, 248, 0.4);
+      pointer-events: none;
+      z-index: 10;
+    }
+    .hud-tl { top: 10px; left: 10px; border-top: 2px solid; border-left: 2px solid; }
+    .hud-tr { top: 10px; right: 10px; border-top: 2px solid; border-right: 2px solid; }
+    .hud-bl { bottom: 10px; left: 10px; border-bottom: 2px solid; border-left: 2px solid; }
+    .hud-br { bottom: 10px; right: 10px; border-bottom: 2px solid; border-right: 2px solid; }
+
     .video-overlay-top {
       position: absolute;
-      top: 12px;
-      left: 14px;
-      right: 14px;
+      top: 14px;
+      left: 16px;
+      right: 16px;
       display: flex;
       justify-content: space-between;
       align-items: center;
       pointer-events: none;
+      z-index: 12;
     }
 
     .cam-tag {
-      background: rgba(0, 0, 0, 0.65);
-      backdrop-filter: blur(4px);
-      padding: 4px 10px;
+      background: rgba(7, 9, 14, 0.75);
+      backdrop-filter: blur(8px);
+      padding: 5px 12px;
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 11px;
+      font-weight: 600;
       font-family: 'JetBrains Mono', monospace;
-      color: #fff;
+      color: #f1f5f9;
       display: flex;
       align-items: center;
-      gap: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.1);
+      gap: 7px;
+      border: 1px solid rgba(255, 255, 255, 0.12);
     }
 
     .rec-dot {
-      width: 8px;
-      height: 8px;
+      width: 7px;
+      height: 7px;
       background: var(--red);
       border-radius: 50%;
+      box-shadow: 0 0 8px var(--red);
       animation: pulse 1s infinite;
     }
 
-    .video-container.alarm-active {
-      box-shadow: 0 0 0 3px var(--red), 0 0 30px var(--red-glow);
-    }
-
+    /* Pulsing Red Emergency Banner */
     .alert-banner-overlay {
       position: absolute;
-      bottom: 14px;
-      left: 14px;
-      right: 14px;
-      background: rgba(239, 68, 68, 0.95);
+      bottom: 16px;
+      left: 16px;
+      right: 16px;
+      background: linear-gradient(135deg, rgba(225, 29, 72, 0.95), rgba(159, 18, 57, 0.95));
       color: #fff;
-      padding: 10px 16px;
+      padding: 12px 18px;
       border-radius: 8px;
-      font-weight: 700;
-      font-size: 14px;
-      letter-spacing: 0.02em;
+      font-weight: 800;
+      font-size: 13px;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
       display: none;
       align-items: center;
       justify-content: center;
-      gap: 10px;
-      box-shadow: 0 4px 20px rgba(239, 68, 68, 0.4);
-      animation: alertPulse 1.2s infinite alternate;
-      z-index: 10;
+      gap: 12px;
+      box-shadow: 0 8px 30px rgba(225, 29, 72, 0.5);
+      animation: alertPulse 1.2s infinite alternate ease-in-out;
+      z-index: 15;
+      border: 1px solid rgba(255, 255, 255, 0.3);
     }
 
     @keyframes alertPulse {
@@ -368,90 +515,117 @@
       to { transform: scale(1.01); opacity: 1; }
     }
 
-
     .video-controls {
       padding: 10px 18px;
-      border-top: 1px solid var(--border);
+      border-top: 1px solid var(--border-subtle);
       display: flex;
       align-items: center;
       justify-content: space-between;
-      background: rgba(19, 23, 32, 0.4);
-      font-size: 13px;
+      background: rgba(14, 19, 31, 0.5);
+      font-size: 12px;
       color: var(--text-muted);
     }
 
-    /* Active Objects Matrix */
+    /* Live Tracked Objects Matrix */
     .live-objects-panel {
-      margin-top: 18px;
+      margin-top: 20px;
     }
 
     .live-objects-list {
-      padding: 16px 20px;
+      padding: 14px 18px;
       display: flex;
       flex-direction: column;
       gap: 10px;
       min-height: 120px;
+      max-height: 280px;
+      overflow-y: auto;
     }
 
     .live-bag-item {
-      background: rgba(255, 255, 255, 0.03);
-      border: 1px solid var(--border);
-      border-radius: 8px;
-      padding: 12px 14px;
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--border-subtle);
+      border-radius: 10px;
+      padding: 12px 16px;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      gap: 12px;
-      transition: all 0.2s;
+      transition: all 0.2s ease;
     }
 
-    .live-bag-item.attended {
-      border-left: 4px solid var(--green);
+    .live-bag-item:hover {
+      background: rgba(255, 255, 255, 0.04);
+      border-color: rgba(255, 255, 255, 0.12);
     }
 
-    .live-bag-item.orphaned {
-      border-left: 4px solid var(--amber);
-      background: rgba(245, 158, 11, 0.05);
+    .live-bag-item.attended { border-left: 4px solid var(--green); }
+    .live-bag-item.orphaned { 
+      border-left: 4px solid var(--amber); 
+      background: rgba(245, 158, 11, 0.04);
     }
-
-    .live-bag-item.unattended {
-      border-left: 4px solid var(--red);
-      background: rgba(239, 68, 68, 0.08);
-      animation: flash-border 1.5s infinite;
-    }
-
-    @keyframes flash-border {
-      0%, 100% { border-color: var(--red); }
-      50% { border-color: rgba(239, 68, 68, 0.3); }
+    .live-bag-item.unattended { 
+      border-left: 4px solid var(--red); 
+      background: rgba(244, 63, 94, 0.07);
     }
 
     .live-bag-info {
       display: flex;
       align-items: center;
-      gap: 10px;
+      gap: 12px;
     }
 
     .live-bag-icon {
-      font-size: 18px;
+      font-size: 22px;
+      width: 38px;
+      height: 38px;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.04);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border: 1px solid var(--border-subtle);
     }
 
     .live-bag-title {
-      font-weight: 600;
-      font-size: 14px;
+      font-weight: 700;
+      font-size: 13px;
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      gap: 8px;
     }
 
     .live-bag-subtitle {
-      font-size: 12px;
+      font-size: 11px;
       color: var(--text-muted);
+      font-family: 'JetBrains Mono', monospace;
+      margin-top: 2px;
+    }
+
+    /* Live Progress Bar for Orphaned Countdown */
+    .timer-progress-track {
+      width: 140px;
+      height: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border-radius: 3px;
+      overflow: hidden;
+      margin-top: 5px;
+    }
+
+    .timer-progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--amber), var(--red));
+      border-radius: 3px;
+      transition: width 0.3s ease;
     }
 
     .status-tag {
       padding: 4px 10px;
       border-radius: 6px;
-      font-size: 11px;
+      font-size: 10px;
       font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
       text-transform: uppercase;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.06em;
     }
 
     .status-tag.attended {
@@ -464,15 +638,17 @@
       background: rgba(245, 158, 11, 0.15);
       color: var(--amber);
       border: 1px solid rgba(245, 158, 11, 0.3);
+      animation: pulse 1.2s infinite;
     }
 
     .status-tag.unattended {
-      background: rgba(239, 68, 68, 0.2);
-      color: var(--red);
-      border: 1px solid var(--red);
+      background: rgba(244, 63, 94, 0.2);
+      color: #fda4af;
+      border: 1px solid rgba(244, 63, 94, 0.45);
+      box-shadow: 0 0 10px var(--red-glow);
     }
 
-    /* Alerts Panel */
+    /* Right Column: Security Alerts Feed */
     .alerts-panel {
       height: 100%;
       display: flex;
@@ -481,55 +657,58 @@
 
     .alerts-filters {
       padding: 10px 18px;
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--border-subtle);
       display: flex;
       gap: 8px;
-      background: rgba(19, 23, 32, 0.3);
+      background: rgba(14, 19, 31, 0.4);
       overflow-x: auto;
     }
 
     .filter-btn {
       background: transparent;
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-subtle);
       color: var(--text-muted);
-      padding: 4px 12px;
+      padding: 5px 12px;
       border-radius: 6px;
-      font-size: 12px;
+      font-size: 11px;
+      font-weight: 600;
       cursor: pointer;
       transition: all 0.2s;
     }
 
     .filter-btn.active, .filter-btn:hover {
-      background: var(--card-hover);
-      color: var(--text);
-      border-color: var(--border-focus);
+      background: rgba(56, 189, 248, 0.12);
+      color: var(--cyan);
+      border-color: rgba(56, 189, 248, 0.35);
     }
 
     .alerts-scroll {
       flex: 1;
-      max-height: 850px;
+      max-height: 820px;
       overflow-y: auto;
-      padding: 14px 16px;
+      padding: 14px 18px;
       display: flex;
       flex-direction: column;
-      gap: 12px;
+      gap: 14px;
     }
 
     .alert-card {
       background: rgba(255, 255, 255, 0.02);
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-subtle);
       border-left: 4px solid var(--red);
-      border-radius: 10px;
-      padding: 14px 16px;
+      border-radius: 12px;
+      padding: 16px;
       display: flex;
       flex-direction: column;
-      gap: 10px;
-      transition: all 0.2s;
+      gap: 12px;
+      transition: all 0.2s ease;
     }
 
     .alert-card:hover {
       background: rgba(255, 255, 255, 0.04);
       border-color: rgba(255, 255, 255, 0.15);
+      border-left-color: var(--red);
+      transform: translateY(-1px);
     }
 
     .alert-header {
@@ -541,8 +720,9 @@
     }
 
     .alert-target {
-      font-weight: 700;
-      font-size: 14px;
+      font-weight: 800;
+      font-size: 13px;
+      color: #fff;
       display: flex;
       align-items: center;
       gap: 8px;
@@ -550,32 +730,71 @@
 
     .alert-time {
       font-size: 11px;
-      color: var(--text-muted);
+      color: var(--text-dim);
       font-family: 'JetBrains Mono', monospace;
     }
 
-    .alert-message {
-      font-size: 13px;
-      line-height: 1.45;
-      color: #e2e8f0;
-      background: rgba(0, 0, 0, 0.25);
-      padding: 8px 12px;
-      border-radius: 6px;
-      border-left: 2px solid var(--blue);
+    /* Gemma 4 VLM Intelligence Box */
+    .gemma-alert-box {
+      background: rgba(15, 23, 42, 0.8);
+      border: 1px solid rgba(168, 85, 247, 0.25);
+      border-radius: 8px;
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      position: relative;
+      overflow: hidden;
     }
 
+    .gemma-alert-box::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 2px;
+      background: linear-gradient(90deg, #a855f7, #38bdf8);
+    }
+
+    .gemma-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      font-size: 10px;
+      font-weight: 700;
+      font-family: 'JetBrains Mono', monospace;
+      color: #c084fc;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+    }
+
+    .gemma-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      background: rgba(168, 85, 247, 0.15);
+      border: 1px solid rgba(168, 85, 247, 0.3);
+    }
+
+    .alert-message-text {
+      font-size: 12.5px;
+      line-height: 1.5;
+      color: #e2e8f0;
+      font-style: italic;
+    }
+
+    /* Snapshot Thumbnail */
     .alert-snapshot-wrapper {
       position: relative;
       border-radius: 8px;
       overflow: hidden;
-      border: 1px solid var(--border);
+      border: 1px solid var(--border-subtle);
       cursor: pointer;
       background: #000;
-      max-height: 200px;
-    }
-
-    .alert-snapshot-wrapper:hover .zoom-overlay {
-      opacity: 1;
+      max-height: 190px;
     }
 
     .alert-snapshot-img {
@@ -593,37 +812,42 @@
     .zoom-overlay {
       position: absolute;
       inset: 0;
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.6);
+      backdrop-filter: blur(2px);
       display: flex;
       align-items: center;
       justify-content: center;
       gap: 6px;
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 600;
       color: #fff;
       opacity: 0;
       transition: opacity 0.2s ease;
     }
 
+    .alert-snapshot-wrapper:hover .zoom-overlay {
+      opacity: 1;
+    }
+
     .empty-state {
-      padding: 40px 20px;
+      padding: 48px 20px;
       text-align: center;
-      color: var(--text-muted);
-      font-size: 14px;
+      color: var(--text-dim);
+      font-size: 13px;
     }
 
     .empty-icon {
       font-size: 32px;
       margin-bottom: 8px;
-      opacity: 0.6;
+      opacity: 0.5;
     }
 
-    /* Lightbox Modal */
+    /* High-Fidelity Lightbox Modal */
     .modal {
       position: fixed;
       inset: 0;
-      background: rgba(0, 0, 0, 0.85);
-      backdrop-filter: blur(8px);
+      background: rgba(3, 5, 10, 0.88);
+      backdrop-filter: blur(14px);
       z-index: 100;
       display: none;
       align-items: center;
@@ -636,67 +860,70 @@
     }
 
     .modal-content {
-      background: var(--card);
-      border: 1px solid var(--border);
-      border-radius: 12px;
-      max-width: 900px;
+      background: var(--bg-surface);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 16px;
+      max-width: 950px;
       width: 100%;
       overflow: hidden;
-      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
-      animation: modal-pop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+      box-shadow: 0 30px 60px -12px rgba(0, 0, 0, 0.7);
+      animation: modalPop 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
 
-    @keyframes modal-pop {
-      from { opacity: 0; transform: scale(0.95); }
+    @keyframes modalPop {
+      from { opacity: 0; transform: scale(0.96); }
       to { opacity: 1; transform: scale(1); }
     }
 
     .modal-header {
-      padding: 14px 20px;
-      border-bottom: 1px solid var(--border);
+      padding: 16px 24px;
+      border-bottom: 1px solid var(--border-subtle);
       display: flex;
       justify-content: space-between;
       align-items: center;
+      background: rgba(255, 255, 255, 0.02);
     }
 
     .modal-body {
-      padding: 20px;
+      padding: 24px;
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
     }
 
     .modal-img {
       width: 100%;
-      max-height: 540px;
+      max-height: 520px;
       object-fit: contain;
       background: #000;
-      border-radius: 8px;
+      border-radius: 10px;
+      border: 1px solid var(--border-subtle);
     }
 
     .modal-close {
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 24px;
+      font-size: 26px;
       cursor: pointer;
       line-height: 1;
+      transition: color 0.2s;
     }
 
     .modal-close:hover {
-      color: var(--text);
+      color: #fff;
     }
   </style>
 </head>
 <body>
 
-  <!-- Header -->
+  <!-- Top Command Header -->
   <header>
     <div class="brand">
-      <div class="brand-icon">🛡️</div>
+      <div class="brand-icon-wrapper">🛡️</div>
       <div class="brand-text">
-        <h1>Unattended Object Detection</h1>
-        <span>AI Surveillance & Automated Alert System</span>
+        <h1>SENTINAI <span class="brand-badge">VLM-SURVEILLANCE</span></h1>
+        <p>Autonomous Unattended Object Detection & Threat Dispatch Node</p>
       </div>
     </div>
     <div class="header-actions">
@@ -704,91 +931,131 @@
         <span class="live-dot"></span>
         <span id="status-text">Live Monitoring</span>
       </div>
-      <button id="cam-toggle-btn" class="btn" onclick="toggleCamera()" title="Start or Stop Camera Detection">
+      <button id="cam-toggle-btn" class="btn" onclick="toggleCamera()" title="Start or Pause Camera Stream">
         📹 Camera: Active
       </button>
-      <button class="btn btn-test" onclick="triggerTestAlert()" title="Create a simulated test alert">
+      <button class="btn btn-test" onclick="triggerTestAlert()" title="Trigger a test alert scenario">
         ⚡ Simulate Alert
       </button>
-      <button id="sound-btn" class="btn" onclick="toggleAudio()" title="Toggle alert chime">
+      <button id="sound-btn" class="btn" onclick="toggleAudio()" title="Toggle Web Audio alarm chimes">
         🔔 Sound: On
       </button>
-      <button class="btn" onclick="refreshData()" title="Refresh data now">
+      <button class="btn" onclick="refreshData()" title="Force refresh system telemetry">
         🔄 Refresh
       </button>
-      <button class="btn" onclick="togglePageFullscreen()" title="Toggle Fullscreen Dashboard">
-        ⛶ Fullscreen
+      <button class="btn" onclick="togglePageFullscreen()" title="Toggle Fullscreen Kiosk Mode (F11)">
+        ⛶ Kiosk Mode
       </button>
     </div>
   </header>
 
-  <!-- Main Content -->
+  <!-- Threat Level HUD Strip -->
+  <div id="threat-hud-strip" class="threat-hud-strip">
+    <div class="threat-status-tag">
+      <span class="threat-indicator"></span>
+      <span id="threat-level-text">STATUS: NOMINAL — NO THREATS DETECTED IN PRIMARY CONCOURSE</span>
+    </div>
+    <div class="hud-meta-group">
+      <div class="hud-meta-item">
+        <span class="hud-meta-label">AI BRAIN:</span>
+        <span class="hud-meta-value">GEMMA 4 26B (VLM)</span>
+      </div>
+      <div class="hud-meta-item">
+        <span class="hud-meta-label">TRACKER:</span>
+        <span class="hud-meta-value">YOLOv8s + BoT-SORT</span>
+      </div>
+      <div class="hud-meta-item">
+        <span class="hud-meta-label">SYS CLOCK:</span>
+        <span class="hud-meta-value" id="live-clock">--:--:--</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Dashboard Content -->
   <main>
     <!-- KPI Metrics Row -->
-    <section class="stats-row">
-      <div class="stat-card stat-alert">
-        <div class="stat-info">
-          <div class="stat-label">Unattended Alerts</div>
-          <div class="stat-value" id="kpi-unattended">0</div>
+    <section class="kpi-row">
+      <div class="kpi-card kpi-red">
+        <div class="kpi-data">
+          <div class="kpi-label">Unattended Incidents</div>
+          <div class="kpi-value" id="kpi-unattended">0</div>
+          <div class="kpi-subtext">Automated dispatches logged</div>
         </div>
-        <div class="stat-icon">⚠️</div>
+        <div class="kpi-icon-badge" style="color: var(--red);">🚨</div>
       </div>
-      <div class="stat-card stat-objects">
-        <div class="stat-info">
-          <div class="stat-label">Unique Bags Tracked</div>
-          <div class="stat-value" id="kpi-unique">0</div>
+      
+      <div class="kpi-card">
+        <div class="kpi-data">
+          <div class="kpi-label">Unique Bags Tracked</div>
+          <div class="kpi-value" id="kpi-unique">0</div>
+          <div class="kpi-subtext">Cumulative persistent tracks</div>
         </div>
-        <div class="stat-icon">🎒</div>
+        <div class="kpi-icon-badge" style="color: var(--cyan);">🎒</div>
       </div>
-      <div class="stat-card stat-live">
-        <div class="stat-info">
-          <div class="stat-label">Objects in Frame</div>
-          <div class="stat-value" id="kpi-active">0</div>
+
+      <div class="kpi-card kpi-purple">
+        <div class="kpi-data">
+          <div class="kpi-label">Objects In Frame</div>
+          <div class="kpi-value" id="kpi-active">0</div>
+          <div class="kpi-subtext">Real-time scene density</div>
         </div>
-        <div class="stat-icon">👁️</div>
+        <div class="kpi-icon-badge" style="color: var(--purple);">👁️</div>
       </div>
-      <div class="stat-card stat-system">
-        <div class="stat-info">
-          <div class="stat-label">Camera Status</div>
-          <div class="stat-value" id="kpi-cam-status">Online</div>
+
+      <div class="kpi-card kpi-green">
+        <div class="kpi-data">
+          <div class="kpi-label">Vision Pipeline</div>
+          <div class="kpi-value" id="kpi-cam-status">Online</div>
+          <div class="kpi-subtext" id="fps-counter">30.0 FPS</div>
         </div>
-        <div class="stat-icon">📹</div>
+        <div class="kpi-icon-badge" style="color: var(--green);">📹</div>
       </div>
     </section>
 
-    <!-- Main Grid -->
+    <!-- Main Operational Grid -->
     <div class="dashboard-grid">
-      <!-- Left Column: Video Feed & Realtime Tracking -->
+      <!-- Left Column: Video Viewport & Live Tracking Matrix -->
       <section>
         <!-- Camera Stream Panel -->
         <div class="panel">
           <div class="panel-header">
             <div class="panel-title">
-              📹 <span>Live Camera Stream</span>
+              📹 <span>CAM-01 • Primary Sector [960x540 MJPEG]</span>
             </div>
             <div class="cam-tag">
               <span class="rec-dot"></span>
-              <span id="fps-counter">30.0 FPS</span>
+              <span>LIVE FEED</span>
             </div>
           </div>
+          
           <div class="video-container" id="video-wrapper">
+            <!-- HUD Corner Brackets -->
+            <div class="hud-corner hud-tl"></div>
+            <div class="hud-corner hud-tr"></div>
+            <div class="hud-corner hud-bl"></div>
+            <div class="hud-corner hud-br"></div>
+
             <div class="video-overlay-top">
-              <span class="cam-tag">CAM-01 • PRIMARY ZONE</span>
-              <span class="cam-tag" id="live-clock">--:--:--</span>
+              <span class="cam-tag">ZONE A • PASSENGER TERMINAL</span>
+              <span class="cam-tag" id="hud-clock">00:00:00</span>
             </div>
+
+            <!-- Pulsing Emergency Warning Banner -->
             <div id="live-alert-banner" class="alert-banner-overlay">
               🚨 <span id="live-alert-text">ACTIVE SECURITY ALERT: UNATTENDED OBJECT DETECTED!</span>
             </div>
+
             <img id="video-player" src="/video_feed" alt="Surveillance Stream" onerror="handleVideoError(this)">
           </div>
+
           <div class="video-controls">
-            <span>YOLOv8 Object Tracking (Person, Backpack, Handbag, Suitcase)</span>
+            <span>Spatial Engine: Edge-to-Edge Distance (<=150px) • 3.0s Anti-Flicker Buffer</span>
             <div style="display: flex; gap: 8px;">
-              <button class="btn" onclick="reloadStream()" style="padding: 4px 10px; font-size: 12px;" title="Reload video feed">
-                🔄 Reconnect Feed
+              <button class="btn" onclick="reloadStream()" style="padding: 4px 10px; font-size: 11px;" title="Reload video feed">
+                🔄 Reconnect
               </button>
-              <button class="btn" onclick="toggleFullscreen()" style="padding: 4px 10px; font-size: 12px;">
-                ⛶ Fullscreen
+              <button class="btn" onclick="toggleFullscreen()" style="padding: 4px 10px; font-size: 11px;" title="Full screen video feed only">
+                ⛶ Fullscreen Feed
               </button>
             </div>
           </div>
@@ -798,34 +1065,34 @@
         <div class="panel live-objects-panel">
           <div class="panel-header">
             <div class="panel-title">
-              🎯 <span>Currently Tracked Objects in View</span>
+              🎯 <span>Live Luggage Tracking Matrix</span>
             </div>
-            <span id="active-bags-count" style="font-size: 12px; color: var(--text-muted); font-family: monospace;">0 detected</span>
+            <span id="active-bags-count" style="font-size: 11px; color: var(--text-muted); font-family: monospace;">0 detected</span>
           </div>
           <div class="live-objects-list" id="active-objects-container">
             <div class="empty-state">
               <div class="empty-icon">🔍</div>
-              No objects currently in frame.
+              No luggage currently in camera view.
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Right Column: Security Alerts Feed -->
+      <!-- Right Column: Incident Log & Gemma 4 Multimodal Intelligence -->
       <section>
         <div class="panel alerts-panel">
           <div class="panel-header">
             <div class="panel-title">
-              🚨 <span>Security Alerts & Snapshots</span>
+              🚨 <span>Security Incidents & VLM Intelligence</span>
             </div>
-            <span id="alerts-count-tag" style="font-size: 12px; color: var(--text-muted); font-family: monospace;">0 logged</span>
+            <span id="alerts-count-tag" style="font-size: 11px; color: var(--text-muted); font-family: monospace;">0 logged</span>
           </div>
 
           <div class="alerts-filters">
-            <button class="filter-btn active" onclick="setFilter('all', this)">All Classes</button>
-            <button class="filter-btn" onclick="setFilter('backpack', this)">Backpack</button>
-            <button class="filter-btn" onclick="setFilter('handbag', this)">Handbag</button>
-            <button class="filter-btn" onclick="setFilter('suitcase', this)">Suitcase</button>
+            <button class="filter-btn active" onclick="setFilter('all', this)">All Incidents</button>
+            <button class="filter-btn" onclick="setFilter('backpack', this)">Backpacks</button>
+            <button class="filter-btn" onclick="setFilter('handbag', this)">Handbags</button>
+            <button class="filter-btn" onclick="setFilter('suitcase', this)">Suitcases</button>
           </div>
 
           <div class="alerts-scroll" id="alerts-container">
@@ -839,29 +1106,34 @@
     </div>
   </main>
 
-  <!-- Lightbox Modal -->
+  <!-- Lightbox Modal for Snapshot Inspection -->
   <div class="modal" id="image-modal" onclick="closeModal(event)">
     <div class="modal-content" onclick="event.stopPropagation()">
       <div class="modal-header">
-        <span class="panel-title" id="modal-title">Incident Snapshot</span>
+        <span class="panel-title" id="modal-title">Incident Snapshot Dossier</span>
         <button class="modal-close" onclick="closeModal()">&times;</button>
       </div>
       <div class="modal-body">
-        <img id="modal-img" class="modal-img" src="" alt="Full Snapshot">
-        <div class="alert-message" id="modal-desc"></div>
+        <img id="modal-img" class="modal-img" src="" alt="Full Resolution Snapshot">
+        <div class="gemma-alert-box">
+          <div class="gemma-header">
+            <span class="gemma-badge">🤖 GOOGLE GEMMA 4 VLM REPORT</span>
+            <span>VERIFIED AI INGESTION</span>
+          </div>
+          <div class="alert-message-text" id="modal-desc"></div>
+        </div>
       </div>
     </div>
   </div>
 
   <script>
-    // State
-    let currentFilter = 'all';
     let soundEnabled = true;
+    let currentFilter = 'all';
     let knownAlertIds = new Set();
     let initialLoadDone = false;
-
-    // Web Audio Synthesizer for Alert Chime
     let audioCtx = null;
+
+    // Web Audio Synthesizer Chime
     function playAlertChime() {
       if (!soundEnabled) return;
       try {
@@ -875,19 +1147,18 @@
         const osc = audioCtx.createOscillator();
         const gain = audioCtx.createGain();
 
-        osc.type = 'sine';
-        // Dual beep frequency
+        osc.type = "sine";
         osc.frequency.setValueAtTime(880, now);
         osc.frequency.setValueAtTime(1046.5, now + 0.12);
 
-        gain.gain.setValueAtTime(0.15, now);
-        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.35);
+        gain.gain.setValueAtTime(0.2, now);
+        gain.gain.exponentialRampToValueAtTime(0.001, now + 0.4);
 
         osc.connect(gain);
         gain.connect(audioCtx.destination);
 
         osc.start(now);
-        osc.stop(now + 0.35);
+        osc.stop(now + 0.4);
       } catch (e) {
         console.warn("Audio chime failed:", e);
       }
@@ -897,13 +1168,16 @@
       soundEnabled = !soundEnabled;
       const btn = document.getElementById("sound-btn");
       btn.textContent = soundEnabled ? "🔔 Sound: On" : "🔕 Sound: Muted";
-      btn.style.color = soundEnabled ? "var(--text)" : "var(--text-muted)";
+      btn.style.color = soundEnabled ? "var(--text-main)" : "var(--text-dim)";
     }
 
-    // Live Clock
+    // Live Clock & HUD Timer
     setInterval(() => {
       const now = new Date();
-      document.getElementById("live-clock").textContent = now.toLocaleTimeString();
+      const timeStr = now.toLocaleTimeString();
+      document.getElementById("live-clock").textContent = timeStr;
+      const hudClock = document.getElementById("hud-clock");
+      if (hudClock) hudClock.textContent = timeStr;
     }, 1000);
 
     // Filter Logic
@@ -924,7 +1198,6 @@
           fetch("/stats").then(r => r.json())
         ]);
 
-        // Detect new alert for chime
         if (initialLoadDone && alertsRes.length > 0) {
           const hasNew = alertsRes.some(a => !knownAlertIds.has(a.id));
           if (hasNew) playAlertChime();
@@ -978,7 +1251,6 @@
       const statusText = document.getElementById("status-text");
       const kpiCamStatus = document.getElementById("kpi-cam-status");
 
-      // Auto-refresh stream if camera just went active
       if (isCamActive && !wasCameraActive) {
         reloadStream();
       }
@@ -987,7 +1259,7 @@
       if (isCamActive) {
         statusBadge.className = "live-badge";
         statusText.textContent = "Live Monitoring";
-        kpiCamStatus.textContent = "Active";
+        kpiCamStatus.textContent = "Online";
         kpiCamStatus.style.color = "var(--green)";
       } else {
         statusBadge.className = "live-badge standby";
@@ -1012,25 +1284,39 @@
       const banner = document.getElementById("live-alert-banner");
       const alertText = document.getElementById("live-alert-text");
       const videoWrapper = document.getElementById("video-wrapper");
+      const hudStrip = document.getElementById("threat-hud-strip");
+      const threatText = document.getElementById("threat-level-text");
 
-      // Check for any currently active unattended bags
       const unattendedBags = (telemetry && telemetry.bags) ? telemetry.bags.filter(b => b.state === "unattended") : [];
+      const orphanedBags = (telemetry && telemetry.bags) ? telemetry.bags.filter(b => b.state === "orphaned") : [];
+
+      // Update DEFCON / Threat Status HUD Strip
       if (unattendedBags.length > 0) {
         const uBag = unattendedBags[0];
         if (banner) banner.style.display = "flex";
-        if (alertText) alertText.textContent = `CRITICAL ALERT: UNATTENDED ${uBag.class_name.toUpperCase()} #${uBag.bag_id} DETECTED (${Math.round(uBag.seconds_orphaned)}s)!`;
+        if (alertText) alertText.textContent = `🚨 CRITICAL SECURITY ALERT: UNATTENDED ${uBag.class_name.toUpperCase()} #${uBag.bag_id} (${Math.round(uBag.seconds_orphaned)}s)!`;
         if (videoWrapper) videoWrapper.classList.add("alarm-active");
+        if (hudStrip) hudStrip.className = "threat-hud-strip threat-active";
+        if (threatText) threatText.textContent = `DEFCON 1: UNATTENDED ${uBag.class_name.toUpperCase()} #${uBag.bag_id} IN CONCOURSE — DISPATCH ACTIVATED`;
         playAlertChime();
+      } else if (orphanedBags.length > 0) {
+        const oBag = orphanedBags[0];
+        if (banner) banner.style.display = "none";
+        if (videoWrapper) videoWrapper.classList.remove("alarm-active");
+        if (hudStrip) hudStrip.className = "threat-hud-strip";
+        if (threatText) threatText.textContent = `DEFCON 3: SEPARATION DETECTED ON ${oBag.class_name.toUpperCase()} #${oBag.bag_id} (${oBag.seconds_orphaned}s / ${oBag.threshold || 15}s) — TIMER RUNNING`;
       } else {
         if (banner) banner.style.display = "none";
         if (videoWrapper) videoWrapper.classList.remove("alarm-active");
+        if (hudStrip) hudStrip.className = "threat-hud-strip";
+        if (threatText) threatText.textContent = "STATUS: NOMINAL — NO THREATS DETECTED IN PRIMARY CONCOURSE";
       }
 
       if (!telemetry || !telemetry.bags || telemetry.bags.length === 0) {
         container.innerHTML = `
           <div class="empty-state">
             <div class="empty-icon">🔍</div>
-            No bags currently detected in camera frame.
+            No luggage currently detected in camera frame.
           </div>
         `;
         countTag.textContent = "0 detected";
@@ -1049,12 +1335,25 @@
         if (bag.class_name === "suitcase") icon = "🧳";
 
         let stateLabel = bag.state.toUpperCase();
-        let subtitle = "Person nearby";
+        let subtitle = "Owner nearby (attended)";
+        let progressHtml = "";
 
         if (bag.state === "orphaned") {
-          subtitle = `Timer: ${bag.seconds_orphaned}s / ${bag.threshold || 15}s`;
+          const threshold = bag.threshold || 15;
+          const pct = Math.min(100, Math.round((bag.seconds_orphaned / threshold) * 100));
+          subtitle = `Separation Timer: ${bag.seconds_orphaned}s / ${threshold}s`;
+          progressHtml = `
+            <div class="timer-progress-track">
+              <div class="timer-progress-fill" style="width: ${pct}%;"></div>
+            </div>
+          `;
         } else if (bag.state === "unattended") {
-          subtitle = `ALERT! Unattended for ${bag.seconds_orphaned}s`;
+          subtitle = `🚨 CRITICAL: Unattended for ${bag.seconds_orphaned}s!`;
+          progressHtml = `
+            <div class="timer-progress-track">
+              <div class="timer-progress-fill" style="width: 100%; background: var(--red);"></div>
+            </div>
+          `;
         }
 
         item.innerHTML = `
@@ -1063,6 +1362,7 @@
             <div>
               <div class="live-bag-title">${bag.class_name.toUpperCase()} #${bag.bag_id}</div>
               <div class="live-bag-subtitle">${subtitle}</div>
+              ${progressHtml}
             </div>
           </div>
           <span class="status-tag ${bag.state}">${stateLabel}</span>
@@ -1108,7 +1408,7 @@
             <div class="alert-snapshot-wrapper" onclick="openModal('${snapUrl}', '${escapeHtml(a.alert_text)}', 'Bag #${a.bag_id} (${a.class_name})')">
               <img class="alert-snapshot-img" src="${snapUrl}" alt="Snapshot" loading="lazy">
               <div class="zoom-overlay">
-                <span>🔍 Click to Enlarge Snapshot</span>
+                <span>🔍 Enlarge Incident Dossier</span>
               </div>
             </div>
           `;
@@ -1125,8 +1425,14 @@
               <span class="alert-time">${timeDisplay}</span>
             </div>
           </div>
-          <div class="alert-message">
-            ${escapeHtml(a.alert_text)}
+          <div class="gemma-alert-box">
+            <div class="gemma-header">
+              <span class="gemma-badge">🤖 GEMMA 4 VLM REPORT</span>
+              <span>CONFIDENCE: HIGH</span>
+            </div>
+            <div class="alert-message-text">
+              ${escapeHtml(a.alert_text)}
+            </div>
           </div>
           ${imgHtml}
         `;
@@ -1148,7 +1454,7 @@
     function openModal(imgSrc, desc, title) {
       document.getElementById("modal-img").src = imgSrc;
       document.getElementById("modal-desc").textContent = desc;
-      document.getElementById("modal-title").textContent = title || "Incident Snapshot";
+      document.getElementById("modal-title").textContent = title || "Incident Snapshot Dossier";
       document.getElementById("image-modal").classList.add("active");
     }
 
@@ -1162,7 +1468,7 @@
       if (e.key === "Escape") closeModal();
     });
 
-    // Fullscreen for Entire Dashboard Webpage
+    // Fullscreen for Entire Webpage
     function togglePageFullscreen() {
       if (!document.fullscreenElement) {
         document.documentElement.requestFullscreen().catch(err => console.warn(err));
@@ -1201,10 +1507,9 @@
       }, 3000);
     }
 
-    // Start Real-Time Polling Loop
+    // Start Polling Loop
     refreshData();
     setInterval(refreshData, 2000);
   </script>
 </body>
 </html>
-
